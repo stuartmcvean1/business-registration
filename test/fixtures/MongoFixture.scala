@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package controllers
+package fixtures
 
-import play.api.mvc._
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import reactivemongo.api.{MongoConnection, FailoverStrategy, DB}
+import uk.gov.hmrc.mongo.MongoConnector
 
-import scala.concurrent.Future
+trait MongoFixture {
 
-object MicroserviceHelloWorld extends MicroserviceHelloWorld
+  private lazy val mongoUri: String = s"mongodb://127.0.0.1:27017/scrs"
+  private lazy val conn = new MongoConnector(mongoUri)
 
-trait MicroserviceHelloWorld extends BaseController {
+  lazy val mongoDB = () => new DB {
+    override def failoverStrategy: FailoverStrategy = conn.helper.failoverStrategy.getOrElse(FailoverStrategy())
+    override def connection: MongoConnection = conn.helper.connection
+    override def name: String = conn.helper.dbName
+  }
 
-	def hello() = Action.async { implicit request =>
-		Future.successful(Ok("Hello world"))
-	}
 }

@@ -30,10 +30,16 @@ trait MetadataController extends BaseController {
 
   val metadataService: MetadataService
 
-  def configureMetadata: Action[JsValue] = Action.async(parse.json) {
+  def createMetadata: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
       withJsonBody[Metadata] {
-        metadata => metadataService.createOrUpdateMetadata(metadata)
+        metadata => metadataService.createMetadataRecord(metadata)
       }
+  }
+
+  //todo: get oid from AuthContext
+  def retrieveMetadata = Action.async {
+    implicit request =>
+      metadataService.retrieveMetadataRecord("oidGoesHere")
   }
 }

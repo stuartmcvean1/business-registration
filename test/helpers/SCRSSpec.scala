@@ -14,22 +14,17 @@
  * limitations under the License.
  */
 
-package controllers
+package helpers
 
-import play.api.http.Status
-import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
+import org.mockito.Mockito.reset
 
-class MicroserviceHelloWorldControllerSpec extends UnitSpec with WithFakeApplication{
+trait SCRSSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SCRSMocks with BeforeAndAfterEach {
 
-  val fakeRequest = FakeRequest("GET", "/")
-
-  "GET /" should {
-    "return 200" in {
-      val result = MicroserviceHelloWorld.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
+  override def beforeEach() {
+    reset(mockMetadataService)
+    reset(mockMetadataRepository)
   }
-
-
 }

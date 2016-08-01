@@ -24,7 +24,7 @@ import repositories.{Repositories, MetadataRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 object MetadataService extends MetadataService {
   override val metadataRepository = Repositories.metadataRepository
@@ -34,24 +34,27 @@ trait MetadataService {
 
   val metadataRepository: MetadataRepository
 
-  def createOrUpdateMetadata(metadata: Metadata): Future[Result] = {
-    metadataExists(metadata.OID).flatMap {
-      if (_) updateMetadataRecord(metadata) else createMetadataRecord(metadata)
-    }
-  }
-
-  private[services] def updateMetadataRecord(metadata: Metadata)(implicit ex: ExecutionContext): Future[Result] = {
-    metadataRepository.updateMetadata(metadata).map(res => Ok(Json.toJson(res)))
-  }
-
-  private[services] def metadataExists(OID: String)(implicit ex: ExecutionContext): Future[Boolean] = {
-    metadataRepository.retrieveMetaData(OID).map{
-      case Some(_) => true
-      case _ => false
-    }
-  }
-
-  private[services] def createMetadataRecord(metadata: Metadata)(implicit ex: ExecutionContext): Future[Result] = {
+  def createMetadataRecord(metadata: Metadata): Future[Result] = {
     metadataRepository.createMetadata(metadata).map(res => Created(Json.toJson(res)))
   }
+
+  def retrieveMetadataRecord(oID: String): Future[Result] = {
+    metadataRepository.retrieveMetaData(oID).map(res => Ok(Json.toJson(res)))
+  }
+
+  //todo: update function not currently needed - uncomment on later story when required
+  //  private[services] def updateMetadataRecord(metadata: Metadata): Future[Result] = {
+  //    metadataRepository.updateMetadata(metadata).map(res => Ok(Json.toJson(res)))
+  //  }
+  //  private[services] def metadataExists(OID: String): Future[Boolean] = {
+  //    metadataRepository.retrieveMetaData(OID).map{
+  //      case Some(_) => true
+  //      case _ => false
+  //    }
+  //  }
+  //  def createMetadata(metadata: Metadata): Future[Result] = {
+  //    metadataExists(metadata.OID).flatMap {
+  //      if (_) updateMetadataRecord(metadata) else createMetadataRecord(metadata)
+  //    }
+  //  }
 }

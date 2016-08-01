@@ -26,13 +26,12 @@ case class Metadata(OID: String,
                     submissionResponseEmail: String,
                     completionCapacity: String,
                     completionCapacityOther: String,
-                    declareAccurateAndComplete: String){
+                    declareAccurateAndComplete: String)
+
+object Metadata {
+  implicit val formats = Json.format[Metadata]
 
   def empty: Metadata = {
     Metadata("", "", "", "", "", "", "", "", "")
   }
-}
-
-object Metadata {
-  implicit val formats = Json.format[Metadata]
 }
