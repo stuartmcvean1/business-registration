@@ -16,9 +16,17 @@
 
 package repositories
 
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
+import uk.gov.hmrc.mongo.MongoSpecSupport
 
-class MetadataMongoRepositorySpec extends UnitSpec with MockitoSugar with WithFakeApplication{
+class MetadataMongoRepositorySpec extends UnitSpec with WithFakeApplication with MongoSpecSupport with BeforeAndAfterEach with BeforeAndAfterAll{
 
+  class Setup {
+    val repository = new MetadataMongoRepository
+  }
+
+  "MetadataMongoRepository" should {
+
+  }
 }

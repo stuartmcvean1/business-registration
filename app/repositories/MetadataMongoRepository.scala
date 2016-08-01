@@ -19,11 +19,12 @@ package repositories
 import models.Metadata
 import play.api.Logger
 import reactivemongo.api.DB
+import reactivemongo.api.indexes.{IndexType, Index}
 import reactivemongo.bson._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MetadataRepository extends Repository[Metadata, BSONObjectID]{
@@ -36,6 +37,10 @@ trait MetadataRepository extends Repository[Metadata, BSONObjectID]{
 class MetadataMongoRepository(implicit mongo: () => DB)
   extends ReactiveRepository[Metadata, BSONObjectID](Collections.metadata, mongo, Metadata.formats, ReactiveMongoFormats.objectIdFormats)
   with MetadataRepository {
+
+  override def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] =
+    collection.indexesManager.ensure(Index(Seq("OID" -> IndexType.Ascending), name = Some("oidIndex"), unique = true))
+    .map(Seq(_))
 
   override def metadataSelector(oID: String): BSONDocument = BSONDocument(
     "OID" -> BSONString(oID)
@@ -50,10 +55,10 @@ class MetadataMongoRepository(implicit mongo: () => DB)
     }
   }
 
-    override def retrieveMetaData(oID: String): Future[Option[Metadata]] = {
-      val selector = metadataSelector(oID)
-      collection.find(selector).one[Metadata]
-    }
+  override def retrieveMetaData(oID: String): Future[Option[Metadata]] = {
+    val selector = metadataSelector(oID)
+    collection.find(selector).one[Metadata]
+  }
 
 //todo: update function not currently needed - uncomment on later story when required
 //  override def updateMetadata(metadata: Metadata): Future[Metadata] = {
