@@ -57,11 +57,12 @@ class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixtur
       await(jsonBodyOf(result)).as[Metadata] shouldBe validMetadata
     }
 
-    "return empty Json and a 200 when no record is retrieved" in new Setup {
+    "return a 201 - Created when no record is retrieved so a new one is created" in new Setup {
       MetadataRepositoryMocks.retrieveMetadata("testOID", None)
+      MetadataRepositoryMocks.createMetadata(validMetadata)
 
       val result = service.retrieveMetadataRecord("testOID")
-      status(result) shouldBe OK
+      status(result) shouldBe CREATED
       await(jsonBodyOf(result)).asOpt shouldBe None
     }
   }

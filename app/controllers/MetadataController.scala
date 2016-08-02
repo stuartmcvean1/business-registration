@@ -16,30 +16,43 @@
 
 package controllers
 
-import models.Metadata
+import auth.{LoggedIn, NotLoggedIn, Authenticated}
+import connectors.AuthConnector
+import models.{MetadataRequest, Metadata}
 import play.api.libs.json.JsValue
 import play.api.mvc.Action
 import services.MetadataService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
+import scala.concurrent.Future
+
 object MetadataController extends MetadataController {
   val metadataService = MetadataService
+  val auth = AuthConnector
 }
 
-trait MetadataController extends BaseController {
+trait MetadataController extends BaseController with Authenticated {
 
   val metadataService: MetadataService
 
   def createMetadata: Action[JsValue] = Action.async(parse.json) {
     implicit request =>
-      withJsonBody[Metadata] {
-        metadata => metadataService.createMetadataRecord(metadata)
-      }
+      authenticated {
+        case NotLoggedIn => Future.successful(Forbidden)
+        case LoggedIn(context) =>
+          withJsonBody[MetadataRequest] {
+            metadata => metadataService.createMetadataRecord(Metadata.empty.copy(
+              OID = context.oid,
+              language = metadata.language))
+          }
+        }
   }
 
-  //todo: get oid from AuthContext
   def retrieveMetadata = Action.async {
     implicit request =>
-      metadataService.retrieveMetadataRecord("oidGoesHere")
+      authenticated {
+        case NotLoggedIn => Future.successful(Forbidden)
+        case LoggedIn(context) => metadataService.retrieveMetadataRecord(context.oid)
+      }
   }
 }

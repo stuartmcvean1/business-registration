@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package helpers
+package fixtures
 
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
-import org.mockito.Mockito.reset
+import connectors.Authority
 
-trait SCRSSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SCRSMocks with BeforeAndAfterEach {
+trait AuthFixture {
 
-  override def beforeEach() {
-    reset(mockMetadataService)
-    reset(mockMetadataRepository)
-    reset(mockAuthConnector)
-  }
+  lazy val validAuthority = Authority(
+    "test.uri", "testOID", "test.userDetailsLink"
+  )
 }

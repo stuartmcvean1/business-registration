@@ -16,7 +16,8 @@
 
 package controllers
 
-import fixtures.MetadataFixture
+import connectors.AuthConnector
+import fixtures.{AuthFixture, MetadataFixture}
 import helpers.SCRSSpec
 import models.Metadata
 import play.api.libs.json.Json
@@ -25,11 +26,12 @@ import services.MetadataService
 import play.api.mvc.Results.{Ok, Created}
 import play.api.test.Helpers._
 
-class MetadataControllerSpec extends SCRSSpec with MetadataFixture{
+class MetadataControllerSpec extends SCRSSpec with MetadataFixture with AuthFixture {
 
   class Setup {
     val controller = new MetadataController {
       override val metadataService: MetadataService = mockMetadataService
+      override val auth: AuthConnector = mockAuthConnector
     }
   }
 
@@ -37,11 +39,15 @@ class MetadataControllerSpec extends SCRSSpec with MetadataFixture{
     "use the correct MetadataService" in {
       MetadataController.metadataService shouldBe MetadataService
     }
+    "use the correct authconnector" in {
+      MetadataController.auth shouldBe AuthConnector
+    }
   }
 
   "createMetadata" should {
     "return a 201 when an existing metadata record does not exist and a new entry is created from the parsed json" in new Setup {
       MetadataServiceMocks.createMetadataRecord(Created(Json.toJson(validMetadata)))
+      AuthenticationMocks.getCurrentAuthority(Some(validAuthority))
 
       val request = FakeRequest().withJsonBody(validMetadataJson)
       val result = call(controller.createMetadata, request)
@@ -51,21 +57,38 @@ class MetadataControllerSpec extends SCRSSpec with MetadataFixture{
 
     "return a 200 when an existing metadata record exists the entry is updated from the parsed json" in new Setup {
       MetadataServiceMocks.createMetadataRecord(Ok(Json.toJson(validMetadata)))
+      AuthenticationMocks.getCurrentAuthority(Some(validAuthority))
 
       val request = FakeRequest().withJsonBody(validMetadataJson)
       val result = call(controller.createMetadata, request)
       await(jsonBodyOf(result)).as[Metadata] shouldBe validMetadata
       status(result) shouldBe OK
     }
+
+    "return a 403 - forbidden when the user is not authenticated" in new Setup {
+      AuthenticationMocks.getCurrentAuthority(None)
+
+      val request = FakeRequest().withJsonBody(validMetadataJson)
+      val result = call(controller.createMetadata, request)
+      status(result) shouldBe FORBIDDEN
+    }
   }
 
   "retrieveMetadata" should {
     "return a 200 and a metadata model" in new Setup {
       MetadataServiceMocks.retrieveMetadataRecord("testOID", Ok(Json.toJson(Some(validMetadata))))
+      AuthenticationMocks.getCurrentAuthority(Some(validAuthority))
 
       val result = call(controller.retrieveMetadata, FakeRequest())
       status(result) shouldBe OK
       await(jsonBodyOf(result)).asOpt[Metadata] shouldBe Some(validMetadata)
+    }
+
+    "return a 403 - forbidden when the user is not authenticated" in new Setup {
+      AuthenticationMocks.getCurrentAuthority(None)
+
+      val result = call(controller.retrieveMetadata, FakeRequest())
+      status(result) shouldBe FORBIDDEN
     }
   }
 }

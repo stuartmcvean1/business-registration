@@ -39,12 +39,6 @@ class AuthHelperSpec extends FakeApplication with WordSpecLike with ShouldMatche
     val auth = mockAuth
   }
 
-  def authResponseJson(uri:String, userDetailsLink: String ) = Json.parse(
-    s"""{
-           "uri":"$uri",
-           "userDetailsLink":"$userDetailsLink"
-        }""")
-
   before {
     reset(mockAuth)
   }

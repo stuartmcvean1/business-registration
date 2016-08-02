@@ -16,7 +16,11 @@
 
 package services
 
+import java.text.SimpleDateFormat
+import java.util.{Date, TimeZone}
+
 import models.Metadata
+import org.joda.time.DateTime
 import play.api.libs.json.Json
 import play.api.mvc.Result
 import play.api.mvc.Results.{Ok, Created}
@@ -35,11 +39,31 @@ trait MetadataService {
   val metadataRepository: MetadataRepository
 
   def createMetadataRecord(metadata: Metadata): Future[Result] = {
-    metadataRepository.createMetadata(metadata).map(res => Created(Json.toJson(res)))
+    val newMetadata = metadata.copy(
+      registrationID = generateRegistrationId,
+      formCreationTimestamp = generateTimestamp(new DateTime())
+    )
+    metadataRepository.createMetadata(newMetadata).map(res => Created(Json.toJson(res)))
+  }
+
+  private def generateRegistrationId: String = {
+    //todo: random number gen until we know how to create
+    scala.util.Random.nextInt("99999".toInt).toString
+  }
+
+  private def generateTimestamp(timeStamp: DateTime) : String = {
+    val timeStampFormat = "yyyy-MM-dd'T'HH:mm:ssXXX"
+    val UTC: TimeZone = TimeZone.getTimeZone("UTC")
+    val format: SimpleDateFormat = new SimpleDateFormat(timeStampFormat)
+    format.setTimeZone(UTC)
+    format.format(new Date(timeStamp.getMillis))
   }
 
   def retrieveMetadataRecord(oID: String): Future[Result] = {
-    metadataRepository.retrieveMetaData(oID).map(res => Ok(Json.toJson(res)))
+    metadataRepository.retrieveMetaData(oID).flatMap{
+      case Some(data) => Future.successful(Ok(Json.toJson(data)))
+      case _ => createMetadataRecord(Metadata.empty.copy(OID = oID))
+    }
   }
 
   //todo: update function not currently needed - uncomment on later story when required

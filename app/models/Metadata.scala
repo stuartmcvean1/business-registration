@@ -35,3 +35,21 @@ object Metadata {
     Metadata("", "", "", "", "", "", "", "", "")
   }
 }
+
+case class MetadataRequest(language: String)
+
+object MetadataRequest {
+  implicit val formats = Json.format[MetadataRequest]
+}
+
+case class MetadataResponse(registrationId: String,
+                            formCreationTimestamp: String,
+                            language: String,
+                            links: Links)
+
+case class Links(self: String)
+
+object MetadataResponse {
+  implicit val formats = Json.format[Metadata]
+  implicit val formatLinks = Json.format[Links]
+}

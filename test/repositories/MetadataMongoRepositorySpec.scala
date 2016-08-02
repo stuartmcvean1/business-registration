@@ -17,14 +17,21 @@
 package repositories
 
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
+import org.scalatestplus.play.OneServerPerSuite
+import uk.gov.hmrc.play.test.UnitSpec
 import uk.gov.hmrc.mongo.MongoSpecSupport
 
-class MetadataMongoRepositorySpec extends UnitSpec with WithFakeApplication with MongoSpecSupport with BeforeAndAfterEach with BeforeAndAfterAll{
+class MetadataMongoRepositorySpec extends UnitSpec with MongoSpecSupport with OneServerPerSuite with BeforeAndAfterEach with BeforeAndAfterAll{
 
-  class Setup {
-    val repository = new MetadataMongoRepository
-  }
+  val repository = new MetadataMongoRepository
+//
+//  override protected def beforeEach() = {
+//    await(repository.drop)
+//  }
+//
+//  override protected def afterAll() {
+//    await(mockKeyStoreRepository.drop)
+//  }
 
   "MetadataMongoRepository" should {
 

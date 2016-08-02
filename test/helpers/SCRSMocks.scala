@@ -16,6 +16,7 @@
 
 package helpers
 
+import connectors.{Authority, AuthConnector}
 import models.Metadata
 import org.mockito.Matchers
 import org.mockito.stubbing.OngoingStubbing
@@ -24,6 +25,7 @@ import org.mockito.Mockito._
 import play.api.mvc.Result
 import repositories.MetadataMongoRepository
 import services.MetadataService
+import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
@@ -32,6 +34,7 @@ trait SCRSMocks {
 
   lazy val mockMetadataService = mock[MetadataService]
   lazy val mockMetadataRepository = mock[MetadataMongoRepository]
+  lazy val mockAuthConnector = mock[AuthConnector]
 
   object MetadataServiceMocks {
     def createMetadataRecord(result: Result): OngoingStubbing[Future[Result]] = {
@@ -54,6 +57,13 @@ trait SCRSMocks {
     def retrieveMetadata(oID: String, metadata: Option[Metadata]): OngoingStubbing[Future[Option[Metadata]]] = {
       when(mockMetadataRepository.retrieveMetaData(Matchers.any()))
         .thenReturn(Future.successful(metadata))
+    }
+  }
+
+  object AuthenticationMocks {
+    def getCurrentAuthority(authority: Option[Authority]): OngoingStubbing[Future[Option[Authority]]] = {
+      when(mockAuthConnector.getCurrentAuthority()(Matchers.any[HeaderCarrier]()))
+        .thenReturn(Future.successful(authority))
     }
   }
 }
