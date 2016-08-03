@@ -14,22 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package connectors
 
-import play.api.http.Status
-import play.api.test.FakeRequest
-import uk.gov.hmrc.play.test.{UnitSpec, WithFakeApplication}
+import uk.gov.hmrc.play.http.{HttpReads, HttpResponse}
 
-class MicroserviceHelloWorldControllerSpec extends UnitSpec with WithFakeApplication{
+trait RawResponseReads {
 
-  val fakeRequest = FakeRequest("GET", "/")
-
-  "GET /" should {
-    "return 200" in {
-      val result = MicroserviceHelloWorld.hello()(fakeRequest)
-      status(result) shouldBe Status.OK
-    }
+  implicit val httpReads: HttpReads[HttpResponse] = new HttpReads[HttpResponse] {
+    override def read(method: String, url: String, response: HttpResponse) = response
   }
-
-
 }

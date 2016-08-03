@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-package controllers
+package helpers
 
-import play.api.mvc._
-import uk.gov.hmrc.play.microservice.controller.BaseController
+import org.scalatest.BeforeAndAfterEach
+import org.scalatest.mock.MockitoSugar
+import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
+import org.mockito.Mockito.reset
 
-import scala.concurrent.Future
+trait SCRSSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SCRSMocks with BeforeAndAfterEach {
 
-object MicroserviceHelloWorld extends MicroserviceHelloWorld
-
-trait MicroserviceHelloWorld extends BaseController {
-
-	def hello() = Action.async { implicit request =>
-		Future.successful(Ok("Hello world"))
-	}
+  override def beforeEach() {
+    reset(mockMetadataService)
+    reset(mockMetadataRepository)
+    reset(mockAuthConnector)
+  }
 }

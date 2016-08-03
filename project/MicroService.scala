@@ -20,18 +20,19 @@ trait MicroService {
 
   lazy val scoverageSettings = {
     // Semicolon-separated list of regexs matching classes to exclude
-    import scoverage.ScoverageKeys
+    import scoverage.ScoverageKeys._
     Seq(
-      ScoverageKeys.coverageExcludedPackages := "<empty>;Reverse.*;model/.data/..*;view.*;uk.gov.hmrc.businessregistration;uk.gov.hmrc;model.*;config.*;.*(AuthService|BuildInfo|Routes).*",
-      ScoverageKeys.coverageMinimum := 80,
-      ScoverageKeys.coverageFailOnMinimum := false,
-      ScoverageKeys.coverageHighlighting := true
+      coverageExcludedPackages := "<empty>;Reverse.*;model.*;config.*;.*(AuthService|BuildInfo|Routes).*",
+      coverageMinimum := 80,
+      coverageFailOnMinimum := false,
+      coverageHighlighting := true
     )
   }
 
   lazy val microservice = Project(appName, file("."))
     .enablePlugins(Seq(play.PlayScala) ++ plugins : _*)
     .settings(playSettings : _*)
+    .settings(scoverageSettings : _*)
     .settings(scalaSettings: _*)
     .settings(publishingSettings: _*)
     .settings(defaultSettings(): _*)
