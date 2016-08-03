@@ -21,7 +21,6 @@ import org.mockito.Matchers
 import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 import org.scalatest.{BeforeAndAfter, ShouldMatchers, WordSpecLike}
-import play.api.libs.json.Json
 import play.api.mvc.Results
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
@@ -29,7 +28,7 @@ import uk.gov.hmrc.play.http.HeaderCarrier
 
 import scala.concurrent.Future
 
-class AuthHelperSpec extends FakeApplication with WordSpecLike with ShouldMatchers with MockitoSugar with BeforeAndAfter {
+class AuthenticatedHelperSpec extends FakeApplication with WordSpecLike with ShouldMatchers with MockitoSugar with BeforeAndAfter {
 
   implicit val hc = HeaderCarrier()
 
@@ -43,9 +42,9 @@ class AuthHelperSpec extends FakeApplication with WordSpecLike with ShouldMatche
     reset(mockAuth)
   }
 
-  "The auth connector" should {
+  "The authentication helper" should {
 
-    "return auth info when an authority is found" in {
+    "provided a logged in auth result when there is a valid bearer token" in {
 
       val a = Authority("x", "y", "z")
 
@@ -61,7 +60,7 @@ class AuthHelperSpec extends FakeApplication with WordSpecLike with ShouldMatche
       response.header.status shouldBe OK
     }
 
-    "return None when an authority isn't found" in {
+    "indicate there's no logged in user where there isn't a valid bearer token" in {
 
       when(mockAuth.getCurrentAuthority()(Matchers.any())).
         thenReturn(Future.successful(None))
@@ -75,5 +74,5 @@ class AuthHelperSpec extends FakeApplication with WordSpecLike with ShouldMatche
       response.header.status shouldBe FORBIDDEN
     }
   }
-
 }
+

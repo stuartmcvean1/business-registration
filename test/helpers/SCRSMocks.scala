@@ -48,7 +48,7 @@ trait SCRSMocks {
     }
 
     def retrieveMetadataRecord(regId: String, result: Result): OngoingStubbing[Future[Result]] = {
-      when(mockMetadataService.retrieveMetadataRecord(Matchers.any()))
+      when(mockMetadataService.retrieveMetadataRecord(Matchers.eq(regId)))
         .thenReturn(Future.successful(result))
     }
   }

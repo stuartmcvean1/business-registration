@@ -16,11 +16,12 @@
 
 package controllers
 
-import auth.{LoggedIn, NotLoggedIn, Authenticated}
+import auth._
 import connectors.AuthConnector
-import models.{MetadataRequest, Metadata}
+import models.{Metadata, MetadataRequest}
 import play.api.libs.json.JsValue
 import play.api.mvc.Action
+import play.api.Logger
 import services.MetadataService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 
@@ -28,10 +29,11 @@ import scala.concurrent.Future
 
 object MetadataController extends MetadataController {
   val metadataService = MetadataService
+  val resourceConn = MetadataService.metadataRepository
   val auth = AuthConnector
 }
 
-trait MetadataController extends BaseController with Authenticated {
+trait MetadataController extends BaseController with Authenticated with Authorisation[String] {
 
   val metadataService: MetadataService
 
@@ -58,9 +60,17 @@ trait MetadataController extends BaseController with Authenticated {
 
   def retrieveMetadata(registrationID: String) = Action.async {
     implicit request =>
-      authenticated {
-        case NotLoggedIn => Future.successful(Forbidden)
-        case LoggedIn(_) => metadataService.retrieveMetadataRecord(registrationID)
+      authorised(registrationID) {
+        case Authorised(_) => metadataService.retrieveMetadataRecord(registrationID)
+        case NotLoggedInOrAuthorised => {
+          Logger.info(s"[MetadataController] [retrieveMetadata] User not logged in")
+          Future.successful(Forbidden)
+        }
+        case NotAuthorised(_) => {
+          Logger.info(s"[MetadataController] [retrieveMetadata] User logged in but not authorised for resource $registrationID")
+          Future.successful(Forbidden)
+        }
+        case AuthResourceNotFound(_) => Future.successful(NotFound)
       }
   }
 }

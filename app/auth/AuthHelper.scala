@@ -16,40 +16,8 @@
 
 package auth
 
-import play.api.mvc.Result
-import play.api.Logger
-import connectors.{AuthConnector, Authority}
-import uk.gov.hmrc.play.http.HeaderCarrier
-
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
-sealed trait AuthResult {}
-case object NotLoggedIn extends AuthResult
-final case class LoggedIn(authContext: Authority) extends AuthResult
-
-trait Authenticated {
-
-  val auth: AuthConnector
-
-  def authenticated(f: => AuthResult => Future[Result])(implicit hc: HeaderCarrier) = {
-    Logger.debug(s"Current user id is ${hc.userId}") // always outputs NONE :-(
-
-    for {
-      authority <- auth.getCurrentAuthority()
-      result <- f(mapToAuthResult(authority))
-    } yield {
-      Logger.debug(s"Got authority = $authority")
-      result
-    }
-  }
-
-  private def mapToAuthResult(authContext: Option[Authority]) : AuthResult = {
-    authContext match {
-      case None => NotLoggedIn
-      case Some(context) => LoggedIn(context)
-    }
-  }
+trait AuthorisationResource[I] {
+  def getOid(id:I) : Future[Option[(I,String)]]
 }
-
-

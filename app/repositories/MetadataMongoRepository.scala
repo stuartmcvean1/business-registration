@@ -16,10 +16,11 @@
 
 package repositories
 
+import auth.AuthorisationResource
 import models.Metadata
 import play.api.Logger
 import reactivemongo.api.DB
-import reactivemongo.api.indexes.{IndexType, Index}
+import reactivemongo.api.indexes.{Index, IndexType}
 import reactivemongo.bson._
 import uk.gov.hmrc.mongo.json.ReactiveMongoFormats
 import uk.gov.hmrc.mongo.{ReactiveRepository, Repository}
@@ -34,11 +35,12 @@ trait MetadataRepository extends Repository[Metadata, BSONObjectID]{
   def retrieveMetadata(regI: String): Future[Option[Metadata]]
   def oIDMetadataSelector(oID: String): BSONDocument
   def regIDMetadataSelector(registrationID: String): BSONDocument
-}
+  }
 
 class MetadataMongoRepository(implicit mongo: () => DB)
   extends ReactiveRepository[Metadata, BSONObjectID](Collections.metadata, mongo, Metadata.formats, ReactiveMongoFormats.objectIdFormats)
-  with MetadataRepository {
+  with MetadataRepository
+  with AuthorisationResource[String] {
 
   override def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] = Future.sequence(
     Seq(collection.indexesManager.ensure(Index(Seq("OID" -> IndexType.Ascending), name = Some("oidIndex"), unique = true)),
@@ -64,6 +66,16 @@ class MetadataMongoRepository(implicit mongo: () => DB)
   override def retrieveMetadata(registrationID: String): Future[Option[Metadata]] = {
     val selector = regIDMetadataSelector(registrationID)
     collection.find(selector).one[Metadata]
+  }
+
+  def getOid(id: String) : Future[Option[(String,String)]] = {
+    // TODO : this can be made more efficient by performing an index scan rather than document lookup
+    retrieveMetadata(id) map {  resource =>
+      resource match {
+        case None => None
+        case Some(m) => Some((m.registrationID, m.OID))
+      }
+    }
   }
 
   override def searchMetadata(oID: String): Future[Option[Metadata]] = {

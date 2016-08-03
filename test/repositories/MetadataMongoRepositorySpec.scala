@@ -117,4 +117,41 @@ class MetadataMongoRepositorySpec extends UnitSpec with MongoSpecSupport with Mo
       metadataResult.registrationID shouldBe randomRegid
     }
   }
+
+  "MetadataMongoRepository retrieve by id for authorisation" should {
+
+    val randomOid = UUID.randomUUID().toString
+    val randomRegid = UUID.randomUUID().toString
+
+    "Find a document keyed on registration id when one exists" in {
+
+      val metadataModel = mock[Metadata]
+
+      when(metadataModel.registrationID) thenReturn randomRegid
+      when(metadataModel.OID) thenReturn randomOid
+
+      val selector = BSONDocument("registrationID" -> BSONString(randomRegid))
+      setupFindFor(repository.collection, selector, Some(metadataModel))
+
+      val result = await(repository.getOid(randomRegid))
+
+      result should be(defined)
+      result should be(Some((randomRegid, randomOid)))
+    }
+
+    "return None when no document exists" in {
+
+      val metadataModel = mock[Metadata]
+
+      when(metadataModel.registrationID) thenReturn randomRegid
+      when(metadataModel.OID) thenReturn randomOid
+
+      val selector = BSONDocument("registrationID" -> BSONString(randomRegid))
+      setupFindFor(repository.collection, selector, None)
+
+      val result = await(repository.getOid(randomRegid))
+
+      result should be(None)
+    }
+  }
 }

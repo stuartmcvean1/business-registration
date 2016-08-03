@@ -14,7 +14,7 @@ class MetadataMongoRepositoryISpec extends UnitSpec with MongoSpecSupport with B
 
   class Setup {
     val repository = new MetadataMongoRepository()
-    //await(repository.drop)
+    await(repository.drop)
     await(repository.ensureIndexes)
   }
 
@@ -34,7 +34,7 @@ class MetadataMongoRepositoryISpec extends UnitSpec with MongoSpecSupport with B
 
       val mdByOid = await(repository.searchMetadata(randomOid))
 
-      mdByOid shouldBe(defined)
+      mdByOid shouldBe (defined)
       mdByOid.get.OID shouldBe (randomOid)
       mdByOid.get.registrationID shouldBe (randomRegid)
     }
@@ -52,10 +52,32 @@ class MetadataMongoRepositoryISpec extends UnitSpec with MongoSpecSupport with B
 
       val mdByRegId = await(repository.retrieveMetadata(randomRegid))
 
-      mdByRegId shouldBe(defined)
+      mdByRegId shouldBe (defined)
       mdByRegId.get.OID shouldBe (randomOid)
       mdByRegId.get.registrationID shouldBe (randomRegid)
     }
 
+    "be able to use the authorisation call to check a document" in new Setup {
+
+      val randomOid = UUID.randomUUID().toString
+      val randomRegid = UUID.randomUUID().toString
+
+      val metadata = Metadata.empty.copy(OID = randomOid, registrationID = randomRegid)
+
+      val metdataResponse = await(repository.createMetadata(metadata))
+
+      metdataResponse.registrationID shouldBe (randomRegid)
+
+      val auth = await(repository.getOid(randomRegid))
+
+      auth shouldBe (defined)
+      auth shouldBe Some((randomRegid, randomOid))
+    }
+
+    "return None for the authorisation call when there's no document" in new Setup {
+      val randomRegid = UUID.randomUUID().toString
+      val auth = await(repository.getOid(randomRegid))
+      auth shouldBe None
+    }
   }
 }
