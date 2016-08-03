@@ -1,4 +1,5 @@
 # microservice specific routes
 
-GET        /business-tax-registration       controllers.MetadataController.retrieveMetadata
-POST       /business-tax-registration       controllers.MetadataController.createMetadata
+GET        /business-tax-registration                       controllers.MetadataController.searchMetadata
+GET        /business-tax-registration/:registrationID       controllers.MetadataController.retrieveMetadata(registrationID: String)
+POST       /business-tax-registration                       controllers.MetadataController.createMetadata

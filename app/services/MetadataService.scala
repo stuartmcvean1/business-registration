@@ -19,15 +19,14 @@ package services
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
-import models.Metadata
+import models.{MetadataResponse, Metadata}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import play.api.mvc.Result
-import play.api.mvc.Results.{Ok, Created}
+import play.api.mvc.Results.{Ok, Created, NotFound}
 import repositories.{Repositories, MetadataRepository}
 
 import scala.concurrent.ExecutionContext.Implicits.global
-
 import scala.concurrent.Future
 
 object MetadataService extends MetadataService {
@@ -59,10 +58,28 @@ trait MetadataService {
     format.format(new Date(timeStamp.getMillis))
   }
 
-  def retrieveMetadataRecord(oID: String): Future[Result] = {
-    metadataRepository.retrieveMetaData(oID).flatMap{
-      case Some(data) => Future.successful(Ok(Json.toJson(data)))
-      case _ => createMetadataRecord(Metadata.empty.copy(OID = oID))
+  def searchMetadataRecord(oID: String): Future[Result] = {
+    metadataRepository.searchMetadata(oID).map{
+      case Some(data) => Ok(Json.toJson(MetadataResponse.toMetadataResponse(data)))
+      case _ => NotFound(Json.parse(
+        """{
+          | "code" : "404",
+          | "message" : "could not find metadata record by OID"
+          |}
+        """.stripMargin))
+    }
+  }
+
+  def retrieveMetadataRecord(registrationID: String): Future[Result] = {
+    metadataRepository.retrieveMetadata(registrationID).map{
+      case Some(data) => Ok(Json.toJson(MetadataResponse.toMetadataResponse(data)))
+      case _ => NotFound(Json.parse(
+        """
+          |{
+          | "code" : "404",
+          | "message" : "could not find metadata record by RegID"
+          |}
+        """.stripMargin))
     }
   }
 

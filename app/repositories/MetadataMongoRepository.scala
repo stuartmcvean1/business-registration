@@ -30,20 +30,26 @@ import scala.concurrent.ExecutionContext.Implicits.global
 trait MetadataRepository extends Repository[Metadata, BSONObjectID]{
   def createMetadata(metadata: Metadata): Future[Metadata]
   //def updateMetadata(metadata: Metadata): Future[Metadata]
-  def retrieveMetaData(oid: String): Future[Option[Metadata]]
-  def metadataSelector(oID: String): BSONDocument
+  def searchMetadata(oid: String): Future[Option[Metadata]]
+  def retrieveMetadata(regI: String): Future[Option[Metadata]]
+  def oIDMetadataSelector(oID: String): BSONDocument
+  def regIDMetadataSelector(registrationID: String): BSONDocument
 }
 
 class MetadataMongoRepository(implicit mongo: () => DB)
   extends ReactiveRepository[Metadata, BSONObjectID](Collections.metadata, mongo, Metadata.formats, ReactiveMongoFormats.objectIdFormats)
   with MetadataRepository {
 
-  override def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] =
-    collection.indexesManager.ensure(Index(Seq("OID" -> IndexType.Ascending), name = Some("oidIndex"), unique = true))
-    .map(Seq(_))
+  override def ensureIndexes(implicit ec: ExecutionContext): Future[Seq[Boolean]] = Future.sequence(
+    Seq(collection.indexesManager.ensure(Index(Seq("OID" -> IndexType.Ascending), name = Some("oidIndex"), unique = true)),
+        collection.indexesManager.ensure(Index(Seq("registrationID" -> IndexType.Ascending), name = Some("regIDIndex"), unique = true))))
 
-  override def metadataSelector(oID: String): BSONDocument = BSONDocument(
+  override def oIDMetadataSelector(oID: String): BSONDocument = BSONDocument(
     "OID" -> BSONString(oID)
+  )
+
+  override def regIDMetadataSelector(registrationID: String): BSONDocument = BSONDocument(
+    "registrationID" -> BSONString(registrationID)
   )
 
   override def createMetadata(metadata: Metadata): Future[Metadata] = {
@@ -55,8 +61,13 @@ class MetadataMongoRepository(implicit mongo: () => DB)
     }
   }
 
-  override def retrieveMetaData(oID: String): Future[Option[Metadata]] = {
-    val selector = metadataSelector(oID)
+  override def retrieveMetadata(registrationID: String): Future[Option[Metadata]] = {
+    val selector = regIDMetadataSelector(registrationID)
+    collection.find(selector).one[Metadata]
+  }
+
+  override def searchMetadata(oID: String): Future[Option[Metadata]] = {
+    val selector = oIDMetadataSelector(oID)
     collection.find(selector).one[Metadata]
   }
 

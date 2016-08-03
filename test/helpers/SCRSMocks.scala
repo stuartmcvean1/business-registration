@@ -42,7 +42,12 @@ trait SCRSMocks {
         .thenReturn(Future.successful(result))
     }
 
-    def retrieveMetadataRecord(oid: String, result: Result): OngoingStubbing[Future[Result]] = {
+    def searchMetadataRecord(oid: String, result: Result): OngoingStubbing[Future[Result]] = {
+      when(mockMetadataService.searchMetadataRecord(Matchers.any()))
+        .thenReturn(Future.successful(result))
+    }
+
+    def retrieveMetadataRecord(regId: String, result: Result): OngoingStubbing[Future[Result]] = {
       when(mockMetadataService.retrieveMetadataRecord(Matchers.any()))
         .thenReturn(Future.successful(result))
     }
@@ -54,8 +59,13 @@ trait SCRSMocks {
         .thenReturn(Future.successful(metadata))
     }
 
-    def retrieveMetadata(oID: String, metadata: Option[Metadata]): OngoingStubbing[Future[Option[Metadata]]] = {
-      when(mockMetadataRepository.retrieveMetaData(Matchers.any()))
+    def searchMetadata(oID: String, metadata: Option[Metadata]): OngoingStubbing[Future[Option[Metadata]]] = {
+      when(mockMetadataRepository.searchMetadata(Matchers.any()))
+        .thenReturn(Future.successful(metadata))
+    }
+
+    def retrieveMetadata(regID: String, metadata: Option[Metadata]): OngoingStubbing[Future[Option[Metadata]]] = {
+      when(mockMetadataRepository.retrieveMetadata(Matchers.any()))
         .thenReturn(Future.successful(metadata))
     }
   }

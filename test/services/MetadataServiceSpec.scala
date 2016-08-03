@@ -16,11 +16,11 @@
 
 package services
 
-import fixtures.{MongoFixture, MetadataFixture}
+import fixtures.{MetadataFixture, MongoFixture}
 import helpers.SCRSSpec
-import models.Metadata
-import repositories.{Repositories, MetadataRepository}
+import models.{Metadata, MetadataResponse}
 import play.api.test.Helpers._
+import repositories.{MetadataRepository, Repositories}
 
 class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixture{
 
@@ -39,7 +39,7 @@ class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixtur
   }
 
   "createMetadataRecord" should {
-    "create a new metadata record" in new Setup {
+    "create a new metadata record and return a 201 - Created response" in new Setup {
       MetadataRepositoryMocks.createMetadata(validMetadata)
 
       val result = service.createMetadataRecord(validMetadata)
@@ -49,21 +49,35 @@ class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixtur
   }
 
   "retrieveMetadataRecord" should {
-    "return metadata Json and a 200 when a metadata record is retrieved" in new Setup {
-      MetadataRepositoryMocks.retrieveMetadata("testOID", Some(validMetadata))
+    "return MetadataResponse Json and a 200 - Ok when a metadata record is retrieved" in new Setup {
+      MetadataRepositoryMocks.retrieveMetadata("testRegID", Some(validMetadata))
 
-      val result = service.retrieveMetadataRecord("testOID")
+      val result = service.retrieveMetadataRecord("testRegID")
       status(result) shouldBe OK
-      await(jsonBodyOf(result)).as[Metadata] shouldBe validMetadata
+      await(jsonBodyOf(result)).as[MetadataResponse] shouldBe validMetadataResponse
     }
 
-    "return a 201 - Created when no record is retrieved so a new one is created" in new Setup {
-      MetadataRepositoryMocks.retrieveMetadata("testOID", None)
-      MetadataRepositoryMocks.createMetadata(validMetadata)
+    "return a 404 - Not found when no record is retrieved" in new Setup {
+      MetadataRepositoryMocks.retrieveMetadata("testRegID", None)
 
-      val result = service.retrieveMetadataRecord("testOID")
-      status(result) shouldBe CREATED
-      await(jsonBodyOf(result)).asOpt shouldBe None
+      val result = service.retrieveMetadataRecord("testRegID")
+      status(result) shouldBe NOT_FOUND
+    }
+  }
+  "searchMetadataRecord" should {
+    "return MetadataResponse Json and a 200 - Ok when a metadata record is retrieved" in new Setup {
+      MetadataRepositoryMocks.searchMetadata("testOID", Some(validMetadata))
+
+      val result = service.searchMetadataRecord("testOID")
+      status(result) shouldBe OK
+      await(jsonBodyOf(result)).as[MetadataResponse] shouldBe validMetadataResponse
+    }
+
+    "return a 404 - Not found when no record is retrieved" in new Setup {
+      MetadataRepositoryMocks.searchMetadata("testOID", None)
+
+      val result = service.searchMetadataRecord("testOID")
+      status(result) shouldBe NOT_FOUND
     }
   }
 }

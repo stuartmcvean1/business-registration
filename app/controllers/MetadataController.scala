@@ -48,11 +48,19 @@ trait MetadataController extends BaseController with Authenticated {
         }
   }
 
-  def retrieveMetadata = Action.async {
+  def searchMetadata = Action.async {
     implicit request =>
       authenticated {
         case NotLoggedIn => Future.successful(Forbidden)
-        case LoggedIn(context) => metadataService.retrieveMetadataRecord(context.oid)
+        case LoggedIn(context) => metadataService.searchMetadataRecord(context.oid)
+      }
+  }
+
+  def retrieveMetadata(registrationID: String) = Action.async {
+    implicit request =>
+      authenticated {
+        case NotLoggedIn => Future.successful(Forbidden)
+        case LoggedIn(_) => metadataService.retrieveMetadataRecord(registrationID)
       }
   }
 }
