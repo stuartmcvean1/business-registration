@@ -30,7 +30,6 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 trait MetadataRepository extends Repository[Metadata, BSONObjectID]{
   def createMetadata(metadata: Metadata): Future[Metadata]
-  //def updateMetadata(metadata: Metadata): Future[Metadata]
   def searchMetadata(oid: String): Future[Option[Metadata]]
   def retrieveMetadata(regI: String): Future[Option[Metadata]]
   def oIDMetadataSelector(oID: String): BSONDocument
@@ -69,12 +68,10 @@ class MetadataMongoRepository(implicit mongo: () => DB)
   }
 
   def getOid(id: String) : Future[Option[(String,String)]] = {
-    // TODO : this can be made more efficient by performing an index scan rather than document lookup
-    retrieveMetadata(id) map {  resource =>
-      resource match {
-        case None => None
-        case Some(m) => Some((m.registrationID, m.OID))
-      }
+  // TODO : this can be made more efficient by performing an index scan rather than document lookup
+  retrieveMetadata(id) map {
+      case None => None
+      case Some(m) => Some((m.registrationID, m.OID))
     }
   }
 
@@ -82,15 +79,4 @@ class MetadataMongoRepository(implicit mongo: () => DB)
     val selector = oIDMetadataSelector(oID)
     collection.find(selector).one[Metadata]
   }
-
-//todo: update function not currently needed - uncomment on later story when required
-//  override def updateMetadata(metadata: Metadata): Future[Metadata] = {
-//    val selector = metadataSelector(metadata.OID)
-//    collection.update(selector, metadata, upsert = false).map{ res =>
-//      if(res.hasErrors){
-//        Logger.error(s"Failed to update metadata. Error: ${res.errmsg.getOrElse("")} for registration id ${metadata.registrationID}")
-//      }
-//      metadata
-//    }
-//  }
 }
