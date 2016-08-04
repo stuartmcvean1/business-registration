@@ -19,7 +19,7 @@ package services
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
-import models.{MetadataResponse, Metadata}
+import models.{ErrorResponse, MetadataResponse, Metadata}
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 import play.api.mvc.Result
@@ -46,7 +46,7 @@ trait MetadataService {
   }
 
   private def generateRegistrationId: String = {
-    //todo: random number gen until we know how to create
+    //todo: (SCRS-2890) random number gen until we know how to create one
     scala.util.Random.nextInt("99999".toInt).toString
   }
 
@@ -61,41 +61,14 @@ trait MetadataService {
   def searchMetadataRecord(oID: String): Future[Result] = {
     metadataRepository.searchMetadata(oID).map{
       case Some(data) => Ok(Json.toJson(MetadataResponse.toMetadataResponse(data)))
-      case _ => NotFound(Json.parse(
-        """{
-          | "code" : "404",
-          | "message" : "could not find metadata record by OID"
-          |}
-        """.stripMargin))
+      case _ => NotFound(ErrorResponse.MetadataNotFound)
     }
   }
 
   def retrieveMetadataRecord(registrationID: String): Future[Result] = {
     metadataRepository.retrieveMetadata(registrationID).map{
       case Some(data) => Ok(Json.toJson(MetadataResponse.toMetadataResponse(data)))
-      case _ => NotFound(Json.parse(
-        """
-          |{
-          | "code" : "404",
-          | "message" : "could not find metadata record by RegID"
-          |}
-        """.stripMargin))
+      case _ => NotFound(ErrorResponse.MetadataNotFound)
     }
   }
-
-  //todo: update function not currently needed - uncomment on later story when required
-  //  private[services] def updateMetadataRecord(metadata: Metadata): Future[Result] = {
-  //    metadataRepository.updateMetadata(metadata).map(res => Ok(Json.toJson(res)))
-  //  }
-  //  private[services] def metadataExists(OID: String): Future[Boolean] = {
-  //    metadataRepository.retrieveMetaData(OID).map{
-  //      case Some(_) => true
-  //      case _ => false
-  //    }
-  //  }
-  //  def createMetadata(metadata: Metadata): Future[Result] = {
-  //    metadataExists(metadata.OID).flatMap {
-  //      if (_) updateMetadataRecord(metadata) else createMetadataRecord(metadata)
-  //    }
-  //  }
 }

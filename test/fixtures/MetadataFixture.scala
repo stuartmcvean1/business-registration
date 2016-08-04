@@ -40,18 +40,4 @@ trait MetadataFixture {
   )
 
   lazy val validMetadataJson: JsValue = Json.toJson(validMetadata)
-
-  //todo: something here is wrong - use validMetadataJson instead
-  lazy val validMetadataJsValue: JsValue =
-    Json.toJson("""{
-                   |    "OID": "0123456789",
-                   |    "registrationID": "0123456789",
-                   |    "formCreationTimestamp": "test",
-                   |    "openIDContentId": "0123456789",
-                   |    "language": "en",
-                   |    "submissionResponseEmail": "test@email.co.uk",
-                   |    "completionCapacity": "test",
-                   |    "completionCapacityOther": "test",
-                   |    "declareAccurateAndComplete": "test"
-                   |}""".stripMargin)
 }
