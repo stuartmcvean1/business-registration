@@ -38,8 +38,6 @@ import services.UserRegisterService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import play.api.mvc.Action
 
-import scala.concurrent.Future
-
 object UserRegisterController extends UserRegisterController {
   val userRegisterService = UserRegisterService
 }
@@ -50,13 +48,7 @@ trait UserRegisterController extends BaseController {
 
   def createUserRecord : Action[JsValue] = Action.async(parse.json) { implicit request =>
     withJsonBody[WhiteListDetailsSubmit] {
-      userDetails =>
-        println("##################")
-        println("")
-        println(userDetails.toString)
-        println("")
-        println("##################")
-        Future.successful(Ok(""))
+      userDetails => userRegisterService.createRegistration(userDetails)
     }
   }
 
