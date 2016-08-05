@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package repositories
+package models
 
-import play.modules.reactivemongo.ReactiveMongoPlugin
+import org.joda.time.DateTime
+import play.api.libs.json.Json
 
-object Repositories {
-  private implicit val connection = {
-    import play.api.Play.current
-    ReactiveMongoPlugin.mongoConnector.db
-  }
+case class WhiteListDetailsSubmit(first_name : String,
+                                  last_name : String,
+                                  phone : String,
+                                  email : String,
+                                  affinity_group : String,
+                                  submission_time : DateTime)
 
-  lazy val metadataRepository = new MetadataMongoRepository
-
-  lazy val userDetailsRepository = new UserDetailsMongoRepository
+object WhiteListDetailsSubmit {
+  implicit val format = Json.format[WhiteListDetailsSubmit]
 }

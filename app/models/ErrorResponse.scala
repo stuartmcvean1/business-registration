@@ -28,4 +28,6 @@ object ErrorResponse{
   }
 
   lazy val MetadataNotFound: JsValue = toJson(ErrorResponse("404", "Could not find metadata record"))
+
+  lazy val UserNotFound : JsValue = toJson(ErrorResponse("404","Could not find user record"))
 }
