@@ -16,12 +16,13 @@
 
 package helpers
 
-import connectors.{Authority, AuthConnector}
-import models.Metadata
+import connectors.{AuthConnector, Authority}
+import models.{Metadata, MetadataResponse}
 import org.mockito.Matchers
 import org.mockito.stubbing.OngoingStubbing
 import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
+import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import repositories.MetadataMongoRepository
 import services.MetadataService
@@ -37,17 +38,17 @@ trait SCRSMocks {
   lazy val mockAuthConnector = mock[AuthConnector]
 
   object MetadataServiceMocks {
-    def createMetadataRecord(result: Result): OngoingStubbing[Future[Result]] = {
+    def createMetadataRecord(result: Metadata): OngoingStubbing[Future[Metadata]] = {
       when(mockMetadataService.createMetadataRecord(Matchers.any[Metadata]()))
         .thenReturn(Future.successful(result))
     }
 
-    def searchMetadataRecord(oid: String, result: Result): OngoingStubbing[Future[Result]] = {
+    def searchMetadataRecord(oid: String, result: Option[MetadataResponse]): OngoingStubbing[Future[Option[MetadataResponse]]] = {
       when(mockMetadataService.searchMetadataRecord(Matchers.any()))
         .thenReturn(Future.successful(result))
     }
 
-    def retrieveMetadataRecord(regId: String, result: Result): OngoingStubbing[Future[Result]] = {
+    def retrieveMetadataRecord(regId: String, result: Option[MetadataResponse]  ): OngoingStubbing[Future[Option[MetadataResponse]]] = {
       when(mockMetadataService.retrieveMetadataRecord(Matchers.eq(regId)))
         .thenReturn(Future.successful(result))
     }
