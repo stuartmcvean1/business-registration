@@ -38,16 +38,22 @@ trait MetadataService {
   val metadataRepository: MetadataRepository
 
   def createMetadataRecord(metadata: Metadata): Future[Result] = {
-    val newMetadata = metadata.copy(
-      registrationID = generateRegistrationId,
-      formCreationTimestamp = generateTimestamp(new DateTime())
-    )
-    metadataRepository.createMetadata(newMetadata).map(res => Created(Json.toJson(res)))
+
+    val formCreationTimestamp = generateTimestamp(new DateTime())
+
+    generateRegistrationId flatMap { identifier =>
+      val newMetadata = metadata.copy(
+        registrationID = identifier,
+        formCreationTimestamp = generateTimestamp(new DateTime())
+      )
+      metadataRepository.createMetadata(newMetadata).map(res => Created(Json.toJson(res)))
+    }
   }
 
-  private def generateRegistrationId: String = {
+  private def generateRegistrationId: Future[String] = {
     //todo: random number gen until we know how to create
-    scala.util.Random.nextInt("99999".toInt).toString
+    val s = scala.util.Random.nextInt("99999".toInt).toString
+    Future.successful(s)
   }
 
   private def generateTimestamp(timeStamp: DateTime) : String = {
