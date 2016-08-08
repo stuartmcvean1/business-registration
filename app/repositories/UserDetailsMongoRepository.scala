@@ -16,7 +16,7 @@
 
 package repositories
 
-import models.WhiteListDetailsSubmit
+import models.{Response, WhiteListDetailsSubmit}
 import play.api.Logger
 import reactivemongo.api.DB
 import reactivemongo.bson.{BSONDocument, BSONObjectID, BSONString}
@@ -30,6 +30,7 @@ trait UserDetailsRepository extends Repository[WhiteListDetailsSubmit, BSONObjec
   def createRegistration(details : WhiteListDetailsSubmit) : Future[WhiteListDetailsSubmit]
   def searchRegistration(email : String) : Future[Option[WhiteListDetailsSubmit]]
   def emailSelector(email : String) : BSONDocument
+  def removeBetaUsers() : Future[Option[Response]]
 }
 
 // scalastyle:off
@@ -47,5 +48,11 @@ class UserDetailsMongoRepository(implicit mongo: () => DB) extends ReactiveRepos
 
   override def searchRegistration(email: String) : Future[Option[WhiteListDetailsSubmit]] = {
     collection.find(emailSelector(email)).one[WhiteListDetailsSubmit]
+  }
+
+  override def removeBetaUsers(): Future[Option[Response]] = {
+    collection.drop().map {
+      resp => Some(Response("Dropped"))
+    }
   }
 }

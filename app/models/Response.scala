@@ -30,40 +30,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package services
+package models
 
-import models.{ErrorResponse, WhiteListDetailsSubmit, Response}
 import play.api.libs.json.Json
-import repositories.{Repositories, UserDetailsRepository}
-import play.api.mvc.Result
-import play.api.mvc.Results.{Created, NotFound, Ok}
 
-import scala.concurrent.ExecutionContext.Implicits.global
+case class Response(resp : String)
 
-import scala.concurrent.Future
-
-object UserRegisterService extends UserRegisterService {
-  val userDetailsRepository = Repositories.userDetailsRepository
-}
-
-trait UserRegisterService {
-
-  val userDetailsRepository : UserDetailsRepository
-
-  def createRegistration(details : WhiteListDetailsSubmit) : Future[Result] = {
-    userDetailsRepository.createRegistration(details).map(res => Created(Json.toJson(res)))
-  }
-
-  def searchRegistrations(email : String) : Future[Result] = {
-    userDetailsRepository.searchRegistration(email).map {
-      case Some(data) => Ok(Json.toJson[WhiteListDetailsSubmit](data))
-      case _ => NotFound(ErrorResponse.UserNotFound)
-    }
-  }
-
-  def dropUsers() : Future[Result] = {
-    userDetailsRepository.removeBetaUsers().map {
-      resp => Ok(Json.toJson[Response](resp.get))
-    }
-  }
+object Response {
+  implicit val format = Json.format[Response]
 }

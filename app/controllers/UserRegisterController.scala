@@ -43,4 +43,8 @@ trait UserRegisterController extends BaseController {
   def searchRegistrations(email : String)  = Action.async { implicit request =>
     userRegisterService.searchRegistrations(email)
   }
+
+  def clearRecords() = Action.async { implicit request =>
+    userRegisterService.dropUsers()
+  }
 }

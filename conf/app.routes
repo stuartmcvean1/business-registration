@@ -6,3 +6,4 @@ POST       /business-tax-registration                       controllers.Metadata
 
 POST       /beta-sign-up                                    controllers.UserRegisterController.createUserRecord
 GET        /get-beta-user/:email                            controllers.UserRegisterController.searchRegistrations(email : String)
+GET        /clear-beta-users                                controllers.UserRegisterController.clearRecords
