@@ -55,8 +55,8 @@ trait UserRegisterService {
   }
 
   def searchRegistrations(email : String) : Future[Result] = {
-    userDetailsRepository.searchRegistration(email).map{
-      case Some(data) => Ok(Json.toJson(data))
+    userDetailsRepository.searchRegistration(email).map {
+      case Some(data) => Ok(Json.toJson[WhiteListDetailsSubmit](data))
       case _ => NotFound(ErrorResponse.UserNotFound)
     }
   }

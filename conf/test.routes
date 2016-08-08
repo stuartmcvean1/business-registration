@@ -1,2 +1,0 @@
-
-#GET         /get-beta-user/:email                   controllers.UserRegisterController.searchRegistrations(email : String)
