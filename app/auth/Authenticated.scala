@@ -28,7 +28,7 @@ sealed trait AuthenticationResult {}
 case object NotLoggedIn extends AuthenticationResult
 final case class LoggedIn(authContext: Authority) extends AuthenticationResult
 
-trait Authenticated {
+trait   Authenticated {
 
   val auth: AuthConnector
 
@@ -51,5 +51,3 @@ trait Authenticated {
     }
   }
 }
-
-

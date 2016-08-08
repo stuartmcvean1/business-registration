@@ -19,12 +19,12 @@ package models
 import org.joda.time.DateTime
 import play.api.libs.json.Json
 
-case class WhiteListDetailsSubmit(first_name : String,
-                                  last_name : String,
+case class WhiteListDetailsSubmit(firstName : String,
+                                  lastName : String,
                                   phone : String,
                                   email : String,
-                                  affinity_group : String,
-                                  submission_time : DateTime)
+                                  affinityGroup : String,
+                                  submissionTime : DateTime)
 
 object WhiteListDetailsSubmit {
   implicit val format = Json.format[WhiteListDetailsSubmit]

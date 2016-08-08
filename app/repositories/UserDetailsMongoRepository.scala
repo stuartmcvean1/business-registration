@@ -37,7 +37,7 @@ class UserDetailsMongoRepository(implicit mongo: () => DB) extends ReactiveRepos
   override def createRegistration(details: WhiteListDetailsSubmit) : Future[WhiteListDetailsSubmit] = {
     collection.insert(details).map { res =>
       if(res.hasErrors) {
-        //Logger.error(s"Failed to store registration data. Error: ${res.errmsg.getOrElse("")} for user ${details.email}")
+        Logger.error(s"Failed to store registration data. Error: ${res.errmsg.getOrElse("")} for user ${details.email}")
       }
       details
     }
