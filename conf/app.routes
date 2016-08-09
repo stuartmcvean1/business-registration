@@ -4,6 +4,4 @@ GET        /business-tax-registration                       controllers.Metadata
 GET        /business-tax-registration/:registrationID       controllers.MetadataController.retrieveMetadata(registrationID: String)
 POST       /business-tax-registration                       controllers.MetadataController.createMetadata
 
-POST       /beta-sign-up                                    controllers.UserRegisterController.createUserRecord
-GET        /get-beta-user/:email                            controllers.UserRegisterController.searchRegistrations(email : String)
-GET        /clear-beta-users                                controllers.UserRegisterController.clearRecords
+POST       /beta-sign-up                                    controllers.beta.UserRegisterController.createUserRecord
