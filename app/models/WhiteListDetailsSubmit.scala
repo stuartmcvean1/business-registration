@@ -18,6 +18,7 @@ package models
 
 import org.joda.time.DateTime
 import play.api.libs.json.Json
+import uk.gov.hmrc.time.DateTimeUtils
 
 case class WhiteListDetailsSubmit(firstName : String,
                                   lastName : String,
@@ -28,4 +29,8 @@ case class WhiteListDetailsSubmit(firstName : String,
 
 object WhiteListDetailsSubmit {
   implicit val format = Json.format[WhiteListDetailsSubmit]
+
+  def empty: WhiteListDetailsSubmit = {
+    WhiteListDetailsSubmit("", "", "", "", "", DateTimeUtils.now)
+  }
 }
