@@ -14,17 +14,22 @@
  * limitations under the License.
  */
 
-package repositories
+package TestUtilities
 
-import play.modules.reactivemongo.ReactiveMongoPlugin
+import scala.util.Random
 
-object Repositories {
-  private implicit val connection = {
-    import play.api.Play.current
-    ReactiveMongoPlugin.mongoConnector.db
+object RandomGenerator {
+
+  def generateName(length : Int) : String = Random.alphanumeric.take(length).mkString
+
+  def generateEmail(firstName : Int, lastName : Int) : String =
+    s"${Random.alphanumeric.take(firstName).mkString}.${Random.alphanumeric.take(lastName).mkString}@email.com"
+
+  def trimEmail(email : String) : String = email.replaceAll(".com", ".co")
+
+  def generatePhone() : String = {
+    val low = 100000000
+    val high = 999999999
+    s"0${Random.nextInt(high - low) + low}"
   }
-
-  lazy val metadataRepository = new MetadataMongoRepository
-
-  lazy val userDetailsRepository = new UserDetailsMongoRepository
 }

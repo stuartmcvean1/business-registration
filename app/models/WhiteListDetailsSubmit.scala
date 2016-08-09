@@ -16,18 +16,21 @@
 
 package models
 
-import play.api.libs.json.{JsValue, Json}
+import org.joda.time.DateTime
+import play.api.libs.json.Json
+import uk.gov.hmrc.time.DateTimeUtils
 
-case class ErrorResponse(statusCode: String, message: String)
+case class WhiteListDetailsSubmit(firstName : String,
+                                  lastName : String,
+                                  phone : String,
+                                  email : String,
+                                  affinityGroup : String,
+                                  submissionTime : DateTime)
 
-object ErrorResponse{
-  implicit val formats = Json.format[ErrorResponse]
+object WhiteListDetailsSubmit {
+  implicit val format = Json.format[WhiteListDetailsSubmit]
 
-  def toJson(res: ErrorResponse): JsValue = {
-    Json.toJson(res)
+  def empty: WhiteListDetailsSubmit = {
+    WhiteListDetailsSubmit("", "", "", "", "", DateTimeUtils.now)
   }
-
-  lazy val MetadataNotFound: JsValue = toJson(ErrorResponse("404", "Could not find metadata record"))
-
-  lazy val UserNotFound : JsValue = toJson(ErrorResponse("404","Could not find user record"))
 }
