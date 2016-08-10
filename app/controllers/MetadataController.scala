@@ -60,10 +60,8 @@ trait MetadataController extends BaseController with Authenticated with Authoris
         case NotLoggedIn => Future.successful(Forbidden)
         case LoggedIn(context) => {
           metadataService.searchMetadataRecord(context.oid) map {
-            r => r match {
-              case Some(response) => Ok(Json.toJson(response))
-              case None => NotFound(ErrorResponse.MetadataNotFound)
-            }
+            case Some(response) => Ok(Json.toJson(response))
+            case None => NotFound(ErrorResponse.MetadataNotFound)
           }
         }
       }
@@ -73,10 +71,8 @@ trait MetadataController extends BaseController with Authenticated with Authoris
     implicit request =>
       authorised(registrationID) {
         case Authorised(_) => metadataService.retrieveMetadataRecord(registrationID) map {
-          r => r match {
-            case Some(response) => Ok(Json.toJson(response))
-            case None => NotFound(ErrorResponse.MetadataNotFound)
-          }
+          case Some(response) => Ok(Json.toJson(response))
+          case None => NotFound(ErrorResponse.MetadataNotFound)
         }
         case NotLoggedInOrAuthorised => {
           Logger.info(s"[MetadataController] [retrieveMetadata] User not logged in")
