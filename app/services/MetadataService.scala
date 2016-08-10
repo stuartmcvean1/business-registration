@@ -19,12 +19,9 @@ package services
 import java.text.SimpleDateFormat
 import java.util.{Date, TimeZone}
 
-import models.{ErrorResponse, MetadataResponse, Metadata}
+import models.{Metadata, MetadataResponse}
 import org.joda.time.DateTime
-import play.api.libs.json.Json
-import play.api.mvc.Result
-import play.api.mvc.Results.{Ok, Created, NotFound}
-import repositories.{Repositories, MetadataRepository}
+import repositories.{MetadataRepository, Repositories}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
@@ -37,12 +34,12 @@ trait MetadataService {
 
   val metadataRepository: MetadataRepository
 
-  def createMetadataRecord(metadata: Metadata): Future[Result] = {
+  def createMetadataRecord(metadata: Metadata) : Future[Metadata] = {
     val newMetadata = metadata.copy(
       registrationID = generateRegistrationId,
       formCreationTimestamp = generateTimestamp(new DateTime())
     )
-    metadataRepository.createMetadata(newMetadata).map(res => Created(Json.toJson(res)))
+    metadataRepository.createMetadata(newMetadata)
   }
 
   private def generateRegistrationId: String = {
@@ -58,17 +55,17 @@ trait MetadataService {
     format.format(new Date(timeStamp.getMillis))
   }
 
-  def searchMetadataRecord(oID: String): Future[Result] = {
+  def searchMetadataRecord(oID: String): Future[Option[MetadataResponse]] = {
     metadataRepository.searchMetadata(oID).map{
-      case Some(data) => Ok(Json.toJson(MetadataResponse.toMetadataResponse(data)))
-      case _ => NotFound(ErrorResponse.MetadataNotFound)
+      case Some(data) => Some(MetadataResponse.toMetadataResponse(data))
+      case None => None
     }
   }
 
-  def retrieveMetadataRecord(registrationID: String): Future[Result] = {
+  def retrieveMetadataRecord(registrationID: String): Future[Option[MetadataResponse]] = {
     metadataRepository.retrieveMetadata(registrationID).map{
-      case Some(data) => Ok(Json.toJson(MetadataResponse.toMetadataResponse(data)))
-      case _ => NotFound(ErrorResponse.MetadataNotFound)
+      case Some(data) => Some(MetadataResponse.toMetadataResponse(data))
+      case None => None
     }
   }
 }

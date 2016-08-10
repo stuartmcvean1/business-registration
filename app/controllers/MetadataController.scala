@@ -18,12 +18,13 @@ package controllers
 
 import auth._
 import connectors.AuthConnector
-import models.{Metadata, MetadataRequest}
-import play.api.libs.json.JsValue
+import models.{ErrorResponse, Metadata, MetadataRequest}
+import play.api.libs.json.{JsValue, Json}
 import play.api.mvc.Action
 import play.api.Logger
 import services.MetadataService
 import uk.gov.hmrc.play.microservice.controller.BaseController
+import uk.gov.hmrc.play.http.logging.MdcLoggingExecutionContext._
 
 import scala.concurrent.Future
 
@@ -43,9 +44,12 @@ trait MetadataController extends BaseController with Authenticated with Authoris
         case NotLoggedIn => Future.successful(Forbidden)
         case LoggedIn(context) =>
           withJsonBody[MetadataRequest] {
-            metadata => metadataService.createMetadataRecord(Metadata.empty.copy(
-              OID = context.oid,
-              language = metadata.language))
+            metadata => {
+              val m = Metadata.empty.copy(OID = context.oid, language = metadata.language)
+              metadataService.createMetadataRecord(m) map {
+                r => Created(Json.toJson(r))
+              }
+            }
           }
         }
   }
@@ -54,14 +58,22 @@ trait MetadataController extends BaseController with Authenticated with Authoris
     implicit request =>
       authenticated {
         case NotLoggedIn => Future.successful(Forbidden)
-        case LoggedIn(context) => metadataService.searchMetadataRecord(context.oid)
+        case LoggedIn(context) => {
+          metadataService.searchMetadataRecord(context.oid) map {
+            case Some(response) => Ok(Json.toJson(response))
+            case None => NotFound(ErrorResponse.MetadataNotFound)
+          }
+        }
       }
   }
 
   def retrieveMetadata(registrationID: String) = Action.async {
     implicit request =>
       authorised(registrationID) {
-        case Authorised(_) => metadataService.retrieveMetadataRecord(registrationID)
+        case Authorised(_) => metadataService.retrieveMetadataRecord(registrationID) map {
+          case Some(response) => Ok(Json.toJson(response))
+          case None => NotFound(ErrorResponse.MetadataNotFound)
+        }
         case NotLoggedInOrAuthorised => {
           Logger.info(s"[MetadataController] [retrieveMetadata] User not logged in")
           Future.successful(Forbidden)
@@ -70,7 +82,7 @@ trait MetadataController extends BaseController with Authenticated with Authoris
           Logger.info(s"[MetadataController] [retrieveMetadata] User logged in but not authorised for resource $registrationID")
           Future.successful(Forbidden)
         }
-        case AuthResourceNotFound(_) => Future.successful(NotFound)
+        case AuthResourceNotFound(_) => Future.successful(NotFound(ErrorResponse.MetadataNotFound))
       }
   }
 }

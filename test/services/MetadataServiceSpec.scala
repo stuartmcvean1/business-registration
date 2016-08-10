@@ -39,45 +39,43 @@ class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixtur
   }
 
   "createMetadataRecord" should {
-    "create a new metadata record and return a 201 - Created response" in new Setup {
+    "create a new metadata document" in new Setup {
       MetadataRepositoryMocks.createMetadata(validMetadata)
 
       val result = service.createMetadataRecord(validMetadata)
-      status(result) shouldBe CREATED
-      await(jsonBodyOf(result)).as[Metadata] shouldBe validMetadata
+      await(result) shouldBe validMetadata
     }
   }
 
   "retrieveMetadataRecord" should {
-    "return MetadataResponse Json and a 200 - Ok when a metadata record is retrieved" in new Setup {
+    "return MetadataResponse when a metadata document is retrieved" in new Setup {
       MetadataRepositoryMocks.retrieveMetadata("testRegID", Some(validMetadata))
 
       val result = service.retrieveMetadataRecord("testRegID")
-      status(result) shouldBe OK
-      await(jsonBodyOf(result)).as[MetadataResponse] shouldBe validMetadataResponse
+      await(result) shouldBe Some(validMetadataResponse)
     }
 
-    "return a 404 - Not found when no record is retrieved" in new Setup {
+    "return None if no document is retrieved" in new Setup {
       MetadataRepositoryMocks.retrieveMetadata("testRegID", None)
 
       val result = service.retrieveMetadataRecord("testRegID")
-      status(result) shouldBe NOT_FOUND
+      await(result) shouldBe None
     }
   }
   "searchMetadataRecord" should {
-    "return MetadataResponse Json and a 200 - Ok when a metadata record is retrieved" in new Setup {
+    "return MetadataResponse when a metadata document is retrieved" in new Setup {
       MetadataRepositoryMocks.searchMetadata("testOID", Some(validMetadata))
 
       val result = service.searchMetadataRecord("testOID")
-      status(result) shouldBe OK
-      await(jsonBodyOf(result)).as[MetadataResponse] shouldBe validMetadataResponse
+      await(result) shouldBe Some(validMetadataResponse)
     }
 
-    "return a 404 - Not found when no record is retrieved" in new Setup {
+    "return None if no document is retrieved" in new Setup {
       MetadataRepositoryMocks.searchMetadata("testOID", None)
 
       val result = service.searchMetadataRecord("testOID")
-      status(result) shouldBe NOT_FOUND
+      await(result) shouldBe None
     }
+
   }
 }
