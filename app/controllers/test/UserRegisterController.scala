@@ -14,16 +14,11 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.test
 
-import models.WhiteListDetailsSubmit
-import play.api.libs.json.{JsValue, Json}
 import services.UserRegisterService
 import uk.gov.hmrc.play.microservice.controller.BaseController
 import play.api.mvc.Action
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 object UserRegisterController extends UserRegisterController {
   val userRegisterService = UserRegisterService
@@ -32,13 +27,6 @@ object UserRegisterController extends UserRegisterController {
 trait UserRegisterController extends BaseController {
 
   val userRegisterService : UserRegisterService
-
-  def createUserRecord : Action[JsValue] = Action.async(parse.json) { implicit request =>
-    withJsonBody[WhiteListDetailsSubmit] {
-      userDetails =>
-        userRegisterService.createRegistration(userDetails)
-    }
-  }
 
   def searchRegistrations(email : String)  = Action.async { implicit request =>
     userRegisterService.searchRegistrations(email)
