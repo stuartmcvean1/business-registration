@@ -16,10 +16,12 @@
 
 package fixtures
 
-import models.{Links, MetadataResponse, Metadata}
+import models.{MetadataRequest, Links, MetadataResponse, Metadata}
 import play.api.libs.json.{Json, JsValue}
 
 trait MetadataFixture {
+
+  lazy val validMetadataRequest = MetadataRequest("en")
 
   lazy val validMetadata = Metadata(
     OID = "0123456789",
@@ -36,7 +38,7 @@ trait MetadataFixture {
     "0123456789",
     "2001-12-31T12:00:00Z",
     "en",
-    Links("/business-tax-registration/0123456789")
+    Links(Some("/business-tax-registration/0123456789"))
   )
 
   lazy val validMetadataJson: JsValue = Json.toJson(validMetadata)

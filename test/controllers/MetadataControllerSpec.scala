@@ -51,12 +51,12 @@ class MetadataControllerSpec extends SCRSSpec with MetadataFixture with AuthFixt
 
   "createMetadata" should {
     "return a 201 when a new entry is created from the parsed json" in new Setup {
-      MetadataServiceMocks.createMetadataRecord(validMetadata)
+      MetadataServiceMocks.createMetadataRecord(validMetadataResponse)
       AuthenticationMocks.getCurrentAuthority(Some(validAuthority))
 
-      val request = FakeRequest().withJsonBody(validMetadataJson)
+      val request = FakeRequest().withJsonBody(Json.toJson(validMetadataRequest))
       val result = call(controller.createMetadata, request)
-      await(jsonBodyOf(result)).as[Metadata] shouldBe validMetadata
+      await(jsonBodyOf(result)).as[MetadataResponse] shouldBe validMetadataResponse
       status(result) shouldBe CREATED
     }
 
