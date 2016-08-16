@@ -34,12 +34,12 @@ trait MetadataService {
 
   val metadataRepository: MetadataRepository
 
-  def createMetadataRecord(metadata: Metadata) : Future[Metadata] = {
+  def createMetadataRecord(metadata: Metadata) : Future[MetadataResponse] = {
     val newMetadata = metadata.copy(
       registrationID = generateRegistrationId,
       formCreationTimestamp = generateTimestamp(new DateTime())
     )
-    metadataRepository.createMetadata(newMetadata)
+    metadataRepository.createMetadata(newMetadata).map(_.toResponse)
   }
 
   private def generateRegistrationId: String = {

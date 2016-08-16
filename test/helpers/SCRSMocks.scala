@@ -38,7 +38,7 @@ trait SCRSMocks {
   lazy val mockAuthConnector = mock[AuthConnector]
 
   object MetadataServiceMocks {
-    def createMetadataRecord(result: Metadata): OngoingStubbing[Future[Metadata]] = {
+    def createMetadataRecord(result: MetadataResponse): OngoingStubbing[Future[MetadataResponse]] = {
       when(mockMetadataService.createMetadataRecord(Matchers.any[Metadata]()))
         .thenReturn(Future.successful(result))
     }
