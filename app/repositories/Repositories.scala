@@ -25,6 +25,6 @@ object Repositories {
   }
 
   lazy val metadataRepository = new MetadataMongoRepository
-
   lazy val userDetailsRepository = new UserDetailsMongoRepository
+  lazy val sequenceRepository = new SequenceMongoRepository
 }

@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-package helpers
+package models
 
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
-import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
-import org.mockito.Mockito.reset
+import play.api.libs.json.Json
 
-trait SCRSSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SCRSMocks with BeforeAndAfterEach {
+case class Sequence(sequenceID: String, seq: Int)
 
-  override def beforeEach() {
-    reset(mockMetadataService)
-    reset(mockMetadataRepository)
-    reset(mockAuthConnector)
-    reset(mockSequenceRepository)
-  }
+object Sequence {
+  implicit val formats = Json.format[Sequence]
 }

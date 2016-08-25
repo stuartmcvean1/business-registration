@@ -24,7 +24,7 @@ import org.scalatest.mock.MockitoSugar
 import org.mockito.Mockito._
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
-import repositories.MetadataMongoRepository
+import repositories.{SequenceRepository, MetadataMongoRepository}
 import services.MetadataService
 import uk.gov.hmrc.play.http.HeaderCarrier
 
@@ -36,6 +36,16 @@ trait SCRSMocks {
   lazy val mockMetadataService = mock[MetadataService]
   lazy val mockMetadataRepository = mock[MetadataMongoRepository]
   lazy val mockAuthConnector = mock[AuthConnector]
+  lazy val mockSequenceRepository = mock[SequenceRepository]
+
+  def matchExact(toMatch: String) = s"""\b$toMatch\b"""
+
+  object SequenceRepositoryMocks {
+    def getNext(sequence: String, returns: Int) = {
+      when(mockSequenceRepository.getNext(Matchers.contains(sequence)))
+        .thenReturn(Future.successful(returns))
+    }
+  }
 
   object MetadataServiceMocks {
     def createMetadataRecord(result: MetadataResponse): OngoingStubbing[Future[MetadataResponse]] = {

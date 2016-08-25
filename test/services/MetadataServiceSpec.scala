@@ -18,9 +18,7 @@ package services
 
 import fixtures.{MetadataFixture, MongoFixture}
 import helpers.SCRSSpec
-import models.{Metadata, MetadataResponse}
-import play.api.test.Helpers._
-import repositories.{MetadataRepository, Repositories}
+import repositories.{SequenceRepository, MetadataRepository, Repositories}
 
 class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixture{
 
@@ -29,6 +27,7 @@ class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixtur
   class Setup {
     val service = new MetadataService {
       override val metadataRepository: MetadataRepository = mockMetadataRepository
+      override val sequenceRepository: SequenceRepository = mockSequenceRepository
     }
   }
 
@@ -41,6 +40,7 @@ class MetadataServiceSpec extends SCRSSpec with MetadataFixture with MongoFixtur
   "createMetadataRecord" should {
     "create a new metadata document" in new Setup {
       MetadataRepositoryMocks.createMetadata(validMetadata)
+      SequenceRepositoryMocks.getNext("registrationID", 1)
 
       val result = service.createMetadataRecord(validMetadata)
       await(result) shouldBe validMetadataResponse

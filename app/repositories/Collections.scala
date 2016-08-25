@@ -17,6 +17,7 @@
 package repositories
 
 object Collections {
-  final lazy val metadata = "registration-information"
-  final lazy val userdata = "scrs-beta-users"
+  final val metadata = "registration-information"
+  final val userdata = "scrs-beta-users"
+  final val sequence = "sequence"
 }

@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package helpers
+package repositories
 
-import org.scalatest.BeforeAndAfterEach
-import org.scalatest.mock.MockitoSugar
 import uk.gov.hmrc.play.test.{WithFakeApplication, UnitSpec}
-import org.mockito.Mockito.reset
 
-trait SCRSSpec extends UnitSpec with MockitoSugar with WithFakeApplication with SCRSMocks with BeforeAndAfterEach {
+class CollectionsSpec extends UnitSpec with WithFakeApplication {
 
-  override def beforeEach() {
-    reset(mockMetadataService)
-    reset(mockMetadataRepository)
-    reset(mockAuthConnector)
-    reset(mockSequenceRepository)
+  "Collections" should {
+    "contain the correct name for the metadata collection" in {
+      Collections.metadata shouldBe "registration-information"
+    }
+    "contain the correct name for the userdata collection" in {
+      Collections.userdata shouldBe "scrs-beta-users"
+    }
+    "contain the correct name for the sequence collection" in {
+      Collections.sequence shouldBe "sequence"
+    }
   }
 }
