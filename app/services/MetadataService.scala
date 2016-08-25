@@ -21,30 +21,33 @@ import java.util.{Date, TimeZone}
 
 import models.{Metadata, MetadataResponse}
 import org.joda.time.DateTime
-import repositories.{MetadataRepository, Repositories}
+import repositories.{SequenceRepository, MetadataRepository, Repositories}
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object MetadataService extends MetadataService {
   override val metadataRepository = Repositories.metadataRepository
+  override val sequenceRepository = Repositories.sequenceRepository
 }
 
 trait MetadataService {
 
   val metadataRepository: MetadataRepository
+  val sequenceRepository: SequenceRepository
 
   def createMetadataRecord(metadata: Metadata) : Future[MetadataResponse] = {
-    val newMetadata = metadata.copy(
-      registrationID = generateRegistrationId,
-      formCreationTimestamp = generateTimestamp(new DateTime())
-    )
-    metadataRepository.createMetadata(newMetadata).map(_.toResponse)
+    generateRegistrationId flatMap { regID =>
+      val newMetadata = metadata.copy(
+        registrationID = regID.toString,
+        formCreationTimestamp = generateTimestamp(new DateTime())
+      )
+      metadataRepository.createMetadata(newMetadata).map(_.toResponse)
+    }
   }
 
-  private def generateRegistrationId: String = {
-    //todo: (SCRS-2890) random number gen until we know how to create one
-    scala.util.Random.nextInt("99999".toInt).toString
+  private def generateRegistrationId: Future[Int] = {
+    sequenceRepository.getNext("registrationID")
   }
 
   private def generateTimestamp(timeStamp: DateTime) : String = {
